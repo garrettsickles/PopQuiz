@@ -148,7 +148,7 @@ int main() {
             const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count();
             test_duration += duration;
 
-            _POPQUIZ_P("        - Completed in %lld ms\n", duration);
+            _POPQUIZ_P("        - Completed in %lld ms\n", static_cast<long long>(duration));
             _POPQUIZ_P("        - ");
 
             if (test_success) {
@@ -199,7 +199,7 @@ int main() {
                     _POPQUIZ_P_RD  ("FAIL");
                 }
                 
-                _POPQUIZ_P_GY(" (%s - %lld ms)\n", std::get<0>(s).c_str(), std::get<2>(s));
+                _POPQUIZ_P_GY(" (%s - %lld ms)\n", std::get<0>(s).c_str(), static_cast<long long>(std::get<2>(s)));
             }
         }
 
