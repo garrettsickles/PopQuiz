@@ -6,6 +6,7 @@
 #include <chrono>
 #include <functional>
 #include <map>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -62,6 +63,9 @@ template<class T> void AssertEqual(const T& e, const T& a, const std::string msg
 template<> void AssertEqual(const std::string& e, const std::string& a, const std::string msg)
     { if (e != a) throw Exception(msg+"("+e+" is not "+a+")"); } }
 
+template<class E> void AssertNoThrow(const std::function<void(void)>& test, const std::string msg)
+    { try { test(); } catch (const E& exception) { return;} catch(...) { throw; } }
+
 #define _POPQUIZ_P(...) if (PopQuiz::output_stdout) { std::printf(__VA_ARGS__); }
 #if defined (_MSC_VER)
     #include <Windows.h>
@@ -90,19 +94,19 @@ template<> void AssertEqual(const std::string& e, const std::string& a, const st
 int main() {
     bool return_fail = false;
     PopQuiz::Setup();
-    FILE* json = NULL;
-    if (PopQuiz::output_json) json = fopen(PopQuiz::output_json_path.c_str(), "w");
-    if (json) fprintf(json, "{");
+
+    std::stringstream json_stream;
+    json_stream << "{";
+
     std::size_t suite_number = 0;
     for (const auto& suite : PopQuiz::GetList()) {
         _POPQUIZ_P_GY(">------------------------------------------\n");
         _POPQUIZ_P_GY(">>> ");
         _POPQUIZ_P_CN("Test Suite: ")
         _POPQUIZ_P_GY("%s\n", suite.first.c_str());
-        if (json) {
-            if (suite_number > 0) fprintf(json, ",");
-            fprintf(json, "\"%s\":[", suite.first.c_str());
-        }
+
+        if (suite_number > 0) json_stream << ",";
+        json_stream << "\"" << suite.first << "\":[";
 
         std::size_t test_number    = 0;
         std::size_t test_count     = suite.second.size();
@@ -136,12 +140,15 @@ int main() {
                 test_success = false;
                 test_failures++;
                 return_fail = return_fail || test_use;
+            } catch (...) {
+                _POPQUIZ_P_RD("Uncaught Exception, Now exiting...");
+                return 1;
             }
 
             const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
             test_duration += duration;
 
-            _POPQUIZ_P("        - Completed in %ld ms\n", duration);
+            _POPQUIZ_P("        - Completed in %lld ms\n", duration);
             _POPQUIZ_P("        - ");
 
             if (test_success) {
@@ -150,16 +157,14 @@ int main() {
                 _POPQUIZ_P_RD("FAIL (%s)", message.c_str());
             }
             
-            if (json) {
-                if (test_number > 0) fprintf(json, ",");
-                fprintf(json, "{");
-                fprintf(json, "\"name\":\"%s\",", std::get<0>(test).c_str());
-                fprintf(json, "\"status\":%s,", test_success ? "true" : "false");
-                fprintf(json, "\"ignore\":%s,", test_use ? "false" : "true");
-                fprintf(json, "\"duration\":%ld", duration);
-                if (!test_success) fprintf(json, ",\"message\":\"%s\"", message.c_str());
-                fprintf(json, "}");
-            }
+            if (test_number > 0) json_stream << ",";
+            json_stream << "{";
+            json_stream << "\"name\":\"" << std::get<0>(test) << "\",";
+            json_stream << "\"status\":" << (test_success ? "true" : "false") << ",";
+            json_stream << "\"ignore\":" << (test_use ? "false" : "true") << ",";
+            json_stream << "\"duration\":" << std::to_string(duration);
+            if (!test_success) json_stream << ",\"message\":\"" << message << "\"";
+            json_stream << "}";
 
             _POPQUIZ_P("\n");
             summary.push_back(std::make_tuple(std::get<0>(test), test_success, static_cast<std::int64_t>(duration)));
@@ -167,54 +172,60 @@ int main() {
         }
 
         if (test_count > 0) {
-            _POPQUIZ_P_GY("\n");
-            _POPQUIZ_P_GY(">>> ");
+            _POPQUIZ_P_GY("\n    >>> ");
             _POPQUIZ_P_CN("Summary: ");
             _POPQUIZ_P_GY("%s\n", suite.first.c_str())
             
-            char   success_stats[100]   = { 0 };
-            double success_percent = static_cast<double>(test_succeeds) / static_cast<double>(test_count) * 100.0;
+            char   success_stats[100] = { 0 };
+            double success_percent    = static_cast<double>(test_succeeds) / static_cast<double>(test_count) * 100.0;
             std::sprintf(success_stats, "%3.2lf%% of tests passed (%lu/%lu)", success_percent, test_succeeds, test_count);
             
-            char   ignore_stats[100]   = { 0 };
-            double ignore_percent = static_cast<double>(test_ignores) / static_cast<double>(test_count) * 100.0;
+            char   ignore_stats[100] = { 0 };
+            double ignore_percent    = static_cast<double>(test_ignores) / static_cast<double>(test_count) * 100.0;
             std::sprintf(ignore_stats, "%3.2lf%% of tests ignored (%lu/%lu)", ignore_percent, test_ignores, test_count);
 
             if (test_succeeds + test_ignores == test_count) {
-                _POPQUIZ_P_GN("    - %s\n", success_stats);
+                _POPQUIZ_P_GN("        - %s\n", success_stats);
             } else {
-                _POPQUIZ_P_RD("    - %s\n", success_stats);
+                _POPQUIZ_P_RD("        - %s\n", success_stats);
             }
-            _POPQUIZ_P_GY("    - %s\n", ignore_stats);
+            _POPQUIZ_P_GY("        - %s\n", ignore_stats);
             _POPQUIZ_P_GY("\n");
 
             for (const auto s : summary) {
-                _POPQUIZ_P_GY("    - ");
+                _POPQUIZ_P_GY("        - ");
                 if (std::get<1>(s)) {
                     _POPQUIZ_P_GN("PASS");
                 } else {
                     _POPQUIZ_P_RD  ("FAIL");
                 }
                 
-                _POPQUIZ_P_GY(" (%s - %ld ms)\n", std::get<0>(s).c_str(), std::get<2>(s));
+                _POPQUIZ_P_GY(" (%s - %lld ms)\n", std::get<0>(s).c_str(), std::get<2>(s));
             }
         }
 
-        if (json) {
-            if (test_count > 0) fprintf(json, ",");
-            fprintf(json, "{");
-            fprintf(json, "\"count\":%lu,", test_count);
-            fprintf(json, "\"success\":%lu,", test_succeeds);
-            fprintf(json, "\"fail\":%lu,", test_failures);
-            fprintf(json, "\"ignore\":%lu,", test_ignores);
-            fprintf(json, "\"total_duration\":%ld", test_duration);
-            fprintf(json, "}]");
-        }
+        if (test_count > 0) json_stream << ",";
+        json_stream << "{";
+        json_stream << "\"count\":" << std::to_string(test_count) << ",";
+        json_stream << "\"success\":" << std::to_string(test_succeeds) << ",";
+        json_stream << "\"fail\":" << std::to_string(test_failures) << ",";
+        json_stream << "\"ignore\":" << std::to_string(test_ignores) << ",";
+        json_stream << "\"total_duration\":" << std::to_string(test_duration);
+        json_stream << "}]";
+        
         suite_number++;
     }
     _POPQUIZ_P_GY("\n");
-    if (json) fprintf(json, "}");
-    if (json) fclose(json);
+    json_stream <<  "}";
+
+    if (PopQuiz::output_json) {
+        FILE* json_file = fopen(PopQuiz::output_json_path.c_str(), "w");
+        if (json_file) {
+            fprintf(json_file, "%s", json_stream.str().c_str());
+            fclose(json_file);
+        }
+    }
+
     return (return_fail ? 1 : 0);
 }
 #endif
