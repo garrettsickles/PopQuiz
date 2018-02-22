@@ -18,7 +18,6 @@ using Suite = std::vector<Case>;
 using List  = std::map<std::string, Suite>;
 
 void Setup();
-
 #define POPQUIZ_SETUP() void PopQuiz::Setup()
 #define POPQUIZ_JSON_OUTPUT() do {\
         std::string filename = std::string(__FILE__);\
@@ -50,21 +49,21 @@ void OutputJSON(const std::string& path)
     #define POPQUIZ_NOEXCEPT noexcept
 #endif
 
-class Exception : std::exception {
-    std::string _what = "Unknown";
+class Exception {
+    std::string _what = "PopQuiz Exception";
 public:
     explicit Exception(const char* const message) { this-> _what = message; }
     explicit Exception(const std::string message) { this-> _what = message; }
-    char const* what() const POPQUIZ_NOEXCEPT override { return this->_what.c_str(); }
+    char const* what() const POPQUIZ_NOEXCEPT     { return this->_what.c_str(); }
 };
 
 template<class T> void AssertEqual(const T& e, const T& a, const std::string msg)
     { if (e != a) throw Exception(msg); }
-template<> void AssertEqual(const std::string& e, const std::string& a, const std::string msg)
-    { if (e != a) throw Exception(msg+"("+e+" is not "+a+")"); } }
+template<>        void AssertEqual(const std::string& e, const std::string& a, const std::string msg)
+    { if (e != a) throw Exception(msg + "(" + e + " is not " + a + ")"); } }
 
-template<class E> void AssertNoThrow(const std::function<void(void)>& test, const std::string msg)
-    { try { test(); } catch (const E& exception) { return;} catch(...) { throw; } }
+template<class T> void AssertThrow(const std::function<void(void)>& test)
+    { try { test(); } catch (const T& exception) { return; } catch(...) { throw; } }
 
 #define _POPQUIZ_P(...) if (PopQuiz::output_stdout) { std::printf(__VA_ARGS__); }
 #if defined (_MSC_VER)
@@ -108,11 +107,11 @@ int main() {
         if (suite_number > 0) json_stream << ",";
         json_stream << "\"" << suite.first << "\":[";
 
-        std::size_t test_number    = 0;
-        std::size_t test_count     = suite.second.size();
-        std::size_t test_ignores   = 0;
-        std::size_t test_failures  = 0;
-        std::size_t test_succeeds  = 0;
+        std::size_t  test_count    = suite.second.size();
+        std::size_t  test_number   = 0;
+        std::size_t  test_ignores  = 0;
+        std::size_t  test_failures = 0;
+        std::size_t  test_succeeds = 0;
         std::int64_t test_duration = 0;
 
         std::vector<std::tuple<std::string,bool,std::int64_t>> summary;
@@ -120,22 +119,23 @@ int main() {
             _POPQUIZ_P_GY("\n    >>> ");
             _POPQUIZ_P_CN("Scenario (%lu/%lu):\n", test_number + 1, test_count);
             _POPQUIZ_P_GY("        - %s\n", std::get<0>(test).c_str());
-
-            bool test_success    = true;
-            std::string message  = "";
-            std::string expected = "";
-            std::string actual   = "";
-
+            
             const bool test_use = std::get<2>(test);
             if (!test_use) test_ignores++;
-            const auto begin    = std::chrono::steady_clock::now();
-            auto end            = std::chrono::steady_clock::now();
+            
+            bool test_success    = true;
+            std::string actual   = "";
+            std::string message  = "";
+            std::string expected = "";
+            auto end_time        = std::chrono::steady_clock::now();
+            auto begin_time      = std::chrono::steady_clock::now();
+            
             try {
                 std::get<1>(test)();
                 test_succeeds++;
-                end = std::chrono::steady_clock::now();
+                end_time = std::chrono::steady_clock::now();
             } catch(const PopQuiz::Exception& e){
-                end = std::chrono::steady_clock::now();
+                end_time = std::chrono::steady_clock::now();
                 message = e.what();
                 test_success = false;
                 test_failures++;
@@ -145,10 +145,10 @@ int main() {
                 return 1;
             }
 
-            const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+            const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count();
             test_duration += duration;
 
-            _POPQUIZ_P("        - Completed in %lld ms\n", duration);
+            _POPQUIZ_P("        - Completed in %lld ms\n", static_cast<long long>(duration));
             _POPQUIZ_P("        - ");
 
             if (test_success) {
@@ -173,8 +173,7 @@ int main() {
 
         if (test_count > 0) {
             _POPQUIZ_P_GY("\n    >>> ");
-            _POPQUIZ_P_CN("Summary: ");
-            _POPQUIZ_P_GY("%s\n", suite.first.c_str())
+            _POPQUIZ_P_CN("Summary:\n");
             
             char   success_stats[100] = { 0 };
             double success_percent    = static_cast<double>(test_succeeds) / static_cast<double>(test_count) * 100.0;
@@ -200,7 +199,7 @@ int main() {
                     _POPQUIZ_P_RD  ("FAIL");
                 }
                 
-                _POPQUIZ_P_GY(" (%s - %lld ms)\n", std::get<0>(s).c_str(), std::get<2>(s));
+                _POPQUIZ_P_GY(" (%s - %lld ms)\n", std::get<0>(s).c_str(), static_cast<long long>(std::get<2>(s)));
             }
         }
 
