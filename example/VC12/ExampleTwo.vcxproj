@@ -10,13 +10,10 @@
     <Import Project="config.props" />
   </ImportGroup>
   <ItemGroup>
-    <ClInclude Include="..\PopQuiz.hpp" />
+    <ClInclude Include="..\..\PopQuiz.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(TargetUnitTestName).cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\LICENSE" />
+    <ClCompile Include="..\$(TargetUnitTestName).cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
