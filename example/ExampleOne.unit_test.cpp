@@ -19,7 +19,7 @@ void PopQuiz::Setup() {
         AssertThrow<std::runtime_error>([](){
             throw std::runtime_error("This is an error");
         }); 
-    }, false);
+    }, false, 5);
     
     // Add a unit test in suite 'Example #1' named 'Throw Exception'
     AddTest("Example #1", "Throw Exception", [](void) {
