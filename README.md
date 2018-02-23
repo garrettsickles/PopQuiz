@@ -13,7 +13,7 @@ That means **PopQuiz**:
  - Does not link against any external libraries (unlike `gtest`)
  - Does not link against other `*.cpp` files
  - Compiles to its own binary executable per unit test file (`*.unit_test` or `*.unit_test.exe`)
- - Can only assert true or throw (uncaught exceptions are considered failures)
+ - Can only assert true, false, equals, or throw (uncaught exceptions are considered failures)
  - Can ignore certain units test at user discretion
  - Can output test results to **JSON** file per unit test
  
@@ -89,35 +89,39 @@ g++ -std=c++11 Example.unit_test.cpp -I<POPQUIZ_PATH> -o Example.unit_test
 **JSON Output**
 ```json
 {
-    "Example #1": [{
-        "name": "Do Nothing",
-        "status": true,
-        "ignore": false,
-        "duration": 0
-    }, {
-        "name": "Assert True",
-        "status": true,
-        "ignore": false,
-        "duration": 0
-    }, {
-        "count": 2,
-        "success": 2,
-        "fail": 0,
-        "ignore": 0,
-        "total_duration": 0
-    }],
-    "Example #2": [{
-        "name": "Throw Exception",
-        "status": false,
-        "ignore": true,
-        "duration": 0,
-        "message": "Not equal, duh..."
-    }, {
-        "count": 1,
-        "success": 0,
-        "fail": 1,
-        "ignore": 1,
-        "total_duration": 0
-    }]
+    "Example #1":[
+        {
+            "name":"Do Nothing",
+            "status":true,
+            "ignore":false,
+            "duration":0
+        },
+        {
+            "name":"Assert True",
+            "status":true,
+            "ignore":false,
+            "duration":0
+        },
+        {
+            "name":"Expect Exception",
+            "status":true,
+            "ignore":true,
+            "duration":0
+        },
+        {
+            "name":"Throw Exception",
+            "status":false,
+            "ignore":true,
+            "duration":0,
+            "message":"Not equal, duh..."
+        },
+        {
+            "count":4,
+            "success":3,
+            "fail":1,
+            "ignore":2,
+            "total_duration":0
+        }
+    ]
 }
 ```
