@@ -49,7 +49,7 @@ using Case  = std::tuple<std::string, Test, bool, std::int64_t>;
 using Suite = std::vector<Case>;
 using List  = std::map<std::string, Suite>;
 
-static bool _pq_output_stdout = false;
+static bool _pq_output_stdout = true;
 static List _pq_test_suite;
 void Setup();
 
@@ -111,12 +111,12 @@ template<class T> void AssertThrow(const std::function<void(void)>& test) {
 }
 
 int main() {
-    #ifdef POPQUIZ_OUTPUT_STDOUT
+    #ifndef POPQUIZ_DISABLE_STDOUT
         PopQuiz::_pq_output_stdout = true;
     #endif
     PopQuiz::Setup();
     bool return_fail   = false;
-    #ifdef POPQUIZ_OUTPUT_JSON
+    #ifdef POPQUIZ_JSON_OUTPUT
         std::stringstream json_stream;
         json_stream << "{";
     #endif
@@ -124,7 +124,7 @@ int main() {
     for (const auto& suite : PopQuiz::_pq_test_suite) {
         _POPQUIZ_P_CN(">>> Test Suite: ")
         _POPQUIZ_P_GY("%s\n", suite.first.c_str());
-        #ifdef POPQUIZ_OUTPUT_JSON
+        #ifdef POPQUIZ_JSON_OUTPUT
             if (suite_number > 0) json_stream << ",";
             json_stream << "\"" << suite.first << "\":[";
         #endif
@@ -175,7 +175,7 @@ int main() {
                     test_success = false;
                 }
             }
-            #ifdef POPQUIZ_OUTPUT_JSON
+            #ifdef POPQUIZ_JSON_OUTPUT
                 if (test_number > 0) json_stream << ",";
                 json_stream << "{";
                 json_stream << "\"name\":\"" << std::get<0>(test) << "\",";
@@ -204,7 +204,7 @@ int main() {
                 _POPQUIZ_P_RD("        %s\n", success_stats);
             }
             _POPQUIZ_P_GY("        %s\n", ignore_stats);
-            _POPQUIZ_P_GY("        Duration %lld ms\n", static_cast<long long>(test_duration));
+            _POPQUIZ_P_GY("        Duration (%lld ms)\n", static_cast<long long>(test_duration));
             _POPQUIZ_P_GY("\n");
             for (const auto s : summary) {
                 _POPQUIZ_P_GY("        ");
@@ -223,7 +223,7 @@ int main() {
             }
             _POPQUIZ_P_GY(" (%s)\n", suite.first.c_str());
         }
-        #ifdef POPQUIZ_OUTPUT_JSON
+        #ifdef POPQUIZ_JSON_OUTPUT
             if (test_count > 0) json_stream << ",";
             json_stream << "{";
             json_stream << "\"count\":" << std::to_string(test_count) << ",";
@@ -237,11 +237,11 @@ int main() {
         suite_number++;
     }
     _POPQUIZ_P_GY("\n");
-    #ifdef POPQUIZ_OUTPUT_JSON
+    #ifdef POPQUIZ_JSON_OUTPUT
         json_stream <<  "}";
-        std::string filename = std::string(_POPQUIZ_STRING(POPQUIZ_OUTPUT_JSON));
+        std::string filename = std::string(_POPQUIZ_STRING(POPQUIZ_JSON_OUTPUT));
         if (filename == "") {
-            _POPQUIZ_P_RD("!!! Error empty JSON filename. Please define POPQUIZ_OUTPUT_JSON as filename !!!");
+            _POPQUIZ_P_RD("!!! Error empty JSON filename. Please define POPQUIZ_JSON_OUTPUT as filename !!!");
             return 1;
         }
         filename = filename.substr(0, filename.find_last_of(".")) + ".json";
