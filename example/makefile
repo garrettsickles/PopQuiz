@@ -29,5 +29,4 @@ clean:
 $(BIN_TEST) : $(DIR_BIN)/% : $(DIR_TEST)/%.$(EXT_CPP)
 	@mkdir -p $(DIR_BIN)
 	@$(CC_BIN) $(CC_STD) $(CC_WRN) $(CC_INC) $< -g -o $@
-	@echo "Unit Test: $<"
 	@./$@

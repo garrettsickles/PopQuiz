@@ -19,27 +19,25 @@ using List  = std::map<std::string, Suite>;
 
 void Setup();
 #define POPQUIZ_SETUP() void PopQuiz::Setup()
-#define POPQUIZ_JSON_OUTPUT() do {\
+#define POPQUIZ_JSON_OUTPUT() do\
+    {\
         std::string filename = std::string(__FILE__);\
         filename = filename.substr(0, filename.find_last_of(".")) + ".json";\
         PopQuiz::OutputJSON(filename);\
     } while (0)
 
-List& GetList()
-    { static List suite; return suite; }
+static List _pq_test_suite;
 void AddTest(const std::string suite, const std::string name, const Test& test, const bool use = true)
-    { GetList()[suite].push_back(Case(name,test,use)); }
+    { _pq_test_suite[suite].push_back(Case(name,test,use)); }
 
-// STDOUT
-static bool output_stdout = true;
+static bool _pq_output_stdout = true;
 void OutputConsole(bool out)
-    { output_stdout = out; }
+    { _pq_output_stdout = out; }
 
-// JSON Output
-static bool output_json = false;
-static std::string output_json_path = "";
+static bool _pq_output_json = false;
+static std::string _pq_output_json_path = "";
 void OutputJSON(const std::string& path)
-    { output_json_path = path; output_json = output_json_path != ""; }
+    { _pq_output_json_path = path; _pq_output_json = _pq_output_json_path != ""; }
 
 #if defined(_MSC_VER)
     #if (_MSC_VER <= 1800)
@@ -57,6 +55,11 @@ public:
     char const* what() const POPQUIZ_NOEXCEPT     { return this->_what.c_str(); }
 };
 
+template<class B> void AssertTrue(const B& b, const std::string msg)
+    { if (!b) throw Exception(msg); }
+template<class B> void AssertFalse(const B& b, const std::string msg)
+    { if (b) throw Exception(msg); }
+
 template<class T> void AssertEqual(const T& e, const T& a, const std::string msg)
     { if (e != a) throw Exception(msg); }
 template<>        void AssertEqual(const std::string& e, const std::string& a, const std::string msg)
@@ -65,7 +68,7 @@ template<>        void AssertEqual(const std::string& e, const std::string& a, c
 template<class T> void AssertThrow(const std::function<void(void)>& test)
     { try { test(); } catch (const T& exception) { return; } catch(...) { throw; } }
 
-#define _POPQUIZ_P(...) if (PopQuiz::output_stdout) { std::printf(__VA_ARGS__); }
+#define _POPQUIZ_P(...) if (PopQuiz::_pq_output_stdout) { std::printf(__VA_ARGS__); }
 #if defined (_MSC_VER)
     #include <Windows.h>
     #define _POPQUIZ_C_RD 0x0C
@@ -98,8 +101,7 @@ int main() {
     json_stream << "{";
 
     std::size_t suite_number = 0;
-    for (const auto& suite : PopQuiz::GetList()) {
-        _POPQUIZ_P_GY(">------------------------------------------\n");
+    for (const auto& suite : PopQuiz::_pq_test_suite) {
         _POPQUIZ_P_GY(">>> ");
         _POPQUIZ_P_CN("Test Suite: ")
         _POPQUIZ_P_GY("%s\n", suite.first.c_str());
@@ -196,7 +198,7 @@ int main() {
                 if (std::get<1>(s)) {
                     _POPQUIZ_P_GN("PASS");
                 } else {
-                    _POPQUIZ_P_RD  ("FAIL");
+                    _POPQUIZ_P_RD("FAIL");
                 }
                 
                 _POPQUIZ_P_GY(" (%s - %lld ms)\n", std::get<0>(s).c_str(), static_cast<long long>(std::get<2>(s)));
@@ -217,11 +219,13 @@ int main() {
     _POPQUIZ_P_GY("\n");
     json_stream <<  "}";
 
-    if (PopQuiz::output_json) {
-        FILE* json_file = fopen(PopQuiz::output_json_path.c_str(), "w");
+    if (PopQuiz::_pq_output_json) {
+        FILE* json_file = fopen(PopQuiz::_pq_output_json_path.c_str(), "w");
         if (json_file) {
             fprintf(json_file, "%s", json_stream.str().c_str());
             fclose(json_file);
+        } else {
+            _POPQUIZ_P_RD("!!! Error writing JSON output \"%s\" !!!", PopQuiz::_pq_output_json_path.c_str());
         }
     }
 

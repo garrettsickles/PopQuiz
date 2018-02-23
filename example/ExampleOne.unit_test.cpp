@@ -2,7 +2,7 @@
 
 void PopQuiz::Setup() {
 
-    OutputJSON("Example.unit_test.json");
+    OutputJSON("ExampleOne.unit_test.json");
 
     // Add a unit test in suite 'Example #1' named 'Do Nothing'
     AddTest("Example #1", "Do Nothing", [](void) {
