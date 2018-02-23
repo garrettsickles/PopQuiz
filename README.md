@@ -27,16 +27,8 @@ That means **PopQuiz**:
 #include <PopQuiz.hpp>
 
 // Must define the 'void PopQuiz::Setup()' function
-// Can also use `POPQUIZ_SETUP()` macro
 void PopQuiz::Setup()
 {
-    // Disable console output even though the colors are pretty and cross platform :(
-    OutputConsole(false);
-    
-    // Output results to JSON
-    // Can also use `POPQUIZ_JSON_OUTPUT()` macro for automatic filename deduction
-    OutputJSON("Example.unit_test.json");
-
     // Add a unit test in suite 'Example #1' named 'Do Nothing'
     AddTest("Example #1", "Do Nothing", [](void) {
         // Pass by default
@@ -80,7 +72,7 @@ void PopQuiz::Setup()
 
 ```bash
 # Change <POPQUIZ_PATH> to the directory containing 'PopQuiz.hpp'
-g++ -std=c++11 Example.unit_test.cpp -I<POPQUIZ_PATH> -o Example.unit_test
+g++ -std=c++11 Example.unit_test.cpp -I<POPQUIZ_PATH> -DPOPQUIZ_OUTPUT_STDOUT -DPOPQUIZ_OUTPUT_JSON="test.json" -o Example.unit_test
 ./Example.unit_test
 ```
 
