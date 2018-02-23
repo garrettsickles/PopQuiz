@@ -15,7 +15,23 @@ That means **PopQuiz**:
  - Can only assert true, false, equals, or throw (uncaught exceptions are considered failures)
  - Can ignore certain units test at user discretion
  - Can output test results to **JSON** file per unit test
- 
+
+## Macros
+Macros play an important role in configuring each PopQuiz unit test.
+
+
+`POPQUIZ_DISABLE_STDOUT`
+- Disable output to the console
+
+
+`POPQUIZ_TEST_ALL`
+- Return true even if a test fails
+
+
+`POPQUIZ_JSON_OUTPUT`
+- Set to the path of the **JSON** results file
+- e.g. (`-DPOPQUIZ_JSON_OUTPUT="UnitTestOutput.json"`) 
+
 ## Example
 
 `Example.unit_test.cpp`
@@ -80,6 +96,7 @@ g++ -std=c++11 Example.unit_test.cpp -I<POPQUIZ_PATH> -DPOPQUIZ_OUTPUT_STDOUT -D
 ./Example.unit_test
 ```
 
+**Console Output**
 ![Example Result](https://raw.githubusercontent.com/garrettsickles/PopQuiz/master/example/Example.PNG  "Text 1")
 
 **JSON Output**
