@@ -47,6 +47,8 @@ template<>        void AssertEqual(const std::string& e, const std::string& a, c
 template<class T> void AssertThrow(const std::function<void(void)>& test)
     { try { test(); } catch (const T& exception) { return; } catch(...) { throw; } }
 
+#define _POPQUIZ_STRINGIFY(x) #x
+#define _POPQUIZ_STRING(x) _POPQUIZ_STRINGIFY(x)
 #define _POPQUIZ_P(...) if (output_stdout) { std::printf(__VA_ARGS__); }
 #if defined (_MSC_VER)
     #include <Windows.h>
@@ -189,7 +191,7 @@ int main() {
     _POPQUIZ_P_GY("\n");
     #ifdef POPQUIZ_OUTPUT_JSON
         json_stream <<  "}";
-        std::string filename = std::string(POPQUIZ_OUTPUT_JSON);
+        std::string filename = std::string(_POPQUIZ_STRING(POPQUIZ_OUTPUT_JSON));
         if (filename == "") {
             _POPQUIZ_P_RD("!!! Error empty JSON filename. Please define POPQUIZ_OUTPUT_JSON as filename !!!");
             return 1;
