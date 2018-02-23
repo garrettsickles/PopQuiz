@@ -1,9 +1,7 @@
 #include <PopQuiz.hpp>
 
 void PopQuiz::Setup() {
-
-    OutputJSON("ExampleOne.unit_test.json");
-
+    
     // Add a unit test in suite 'Example #1' named 'Do Nothing'
     AddTest("Example #1", "Do Nothing", [](void) {
         // Pass by default

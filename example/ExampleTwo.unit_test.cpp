@@ -1,8 +1,6 @@
 #include <PopQuiz.hpp>
 
-POPQUIZ_SETUP()
-{
-	POPQUIZ_JSON_OUTPUT();
+void PopQuiz::Setup() {
 
     AddTest("Example #2", "Ignore", [](void) {
 

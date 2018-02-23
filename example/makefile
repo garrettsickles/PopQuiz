@@ -1,6 +1,7 @@
 # Compiler
 CC_BIN = g++
 CC_STD = -std=c++11
+CC_DEF = -DPOPQUIZ_OUTPUT_STDOUT
 CC_WRN = -Wall
 CC_INC = -I..
 
@@ -28,5 +29,5 @@ clean:
 # Build each test
 $(BIN_TEST) : $(DIR_BIN)/% : $(DIR_TEST)/%.$(EXT_CPP)
 	@mkdir -p $(DIR_BIN)
-	@$(CC_BIN) $(CC_STD) $(CC_WRN) $(CC_INC) $< -g -o $@
+	@$(CC_BIN) $(CC_STD) $(CC_DEF) -DPOPQUIZ_OUTPUT_JSON="\"$<\"" $(CC_WRN) $(CC_INC) $< -g -o $@
 	@./$@

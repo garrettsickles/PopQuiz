@@ -6,3 +6,4 @@ obj/
 *.opensdf
 *.sdf
 *.suo
+*.unit_test.json
