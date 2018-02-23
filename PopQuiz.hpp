@@ -17,7 +17,7 @@
 
 #define _POPQUIZ_STRINGIFY(x) #x
 #define _POPQUIZ_STRING(x) _POPQUIZ_STRINGIFY(x)
-#define _POPQUIZ_P(...) if (PopQuiz::output_stdout) { std::printf(__VA_ARGS__); }
+#define _POPQUIZ_P(...) if (PopQuiz::_pq_output_stdout) { std::printf(__VA_ARGS__); }
 #if defined (_MSC_VER)
     #include <Windows.h>
     #define _POPQUIZ_C_RD 0x0C
@@ -44,13 +44,13 @@
 
 namespace PopQuiz {
 
-static bool output_stdout = false;
-
 using Test  = std::function<void(void)>;
 using Case  = std::tuple<std::string, Test, bool, std::int64_t>;
 using Suite = std::vector<Case>;
 using List  = std::map<std::string, Suite>;
 
+static bool _pq_output_stdout = false;
+static List _pq_test_suite;
 void Setup();
 
 class Failure {
@@ -67,8 +67,8 @@ public:
     int         line() const POPQUIZ_NOEXCEPT { return this->_line; }
 };
 
-static List _pq_test_suite;
-void AddTest(const std::string suite, const std::string name, const Test& test, const bool use = true, const std::int64_t duration = -1)
+template <bool use = true>
+void AddTest(const std::string suite, const std::string name, const Test& test, const std::int64_t duration = -1)
     { _pq_test_suite[suite].push_back(Case(name,test,use,duration)); }
 
 #define AssertTrue(arg,message) do {\
@@ -112,7 +112,7 @@ template<class T> void AssertThrow(const std::function<void(void)>& test) {
 
 int main() {
     #ifdef POPQUIZ_OUTPUT_STDOUT
-        PopQuiz::output_stdout = true;
+        PopQuiz::_pq_output_stdout = true;
     #endif
     PopQuiz::Setup();
     bool return_fail   = false;
