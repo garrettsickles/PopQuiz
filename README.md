@@ -16,6 +16,52 @@ That means **PopQuiz**:
  - Can ignore certain units test at user discretion
  - Can output test results to **JSON** file per unit test
 
+**Console Output**
+![Example Result](https://raw.githubusercontent.com/garrettsickles/PopQuiz/master/example/Example.PNG  "Text 1")
+
+**JSON Output**
+```json
+{
+{
+    "Example #1":[
+        {
+            "name":"Do Nothing",
+            "status":true,
+            "ignore":false,
+            "duration":0
+        },
+        {
+            "name":"Assert True",
+            "status":true,
+            "ignore":false,
+            "duration":0
+        },
+        {
+            "name":"Expect Exception",
+            "status":false,
+            "ignore":false,
+            "duration":12,
+            "error":""
+        },
+        {
+            "name":"Throw Exception",
+            "status":false,
+            "ignore":true,
+            "duration":0,
+            "error":"One should not equal two. (ExampleOne.unit_test.cpp:40)"
+        },
+        {
+            "count":4,
+            "success":3,
+            "fail":1,
+            "ignore":1,
+            "duration":12,
+            "result":false
+        }
+    ]
+}
+```
+
 ## Macros
 Macros play an important role in configuring each PopQuiz unit test.
 
@@ -94,47 +140,4 @@ void PopQuiz::Setup() {
 # Change <POPQUIZ_PATH> to the directory containing 'PopQuiz.hpp'
 g++ -std=c++11 Example.unit_test.cpp -I<POPQUIZ_PATH> -DPOPQUIZ_OUTPUT_STDOUT -DPOPQUIZ_OUTPUT_JSON="test.json" -o Example.unit_test
 ./Example.unit_test
-```
-
-**Console Output**
-![Example Result](https://raw.githubusercontent.com/garrettsickles/PopQuiz/master/example/Example.PNG  "Text 1")
-
-**JSON Output**
-```json
-{
-    "Example #1":[
-        {
-            "name":"Do Nothing",
-            "status":true,
-            "ignore":false,
-            "duration":0
-        },
-        {
-            "name":"Assert True",
-            "status":true,
-            "ignore":false,
-            "duration":0
-        },
-        {
-            "name":"Expect Exception",
-            "status":true,
-            "ignore":true,
-            "duration":0
-        },
-        {
-            "name":"Throw Exception",
-            "status":false,
-            "ignore":true,
-            "duration":0,
-            "message":"Not equal, duh..."
-        },
-        {
-            "count":4,
-            "success":3,
-            "fail":1,
-            "ignore":2,
-            "total_duration":0
-        }
-    ]
-}
 ```
