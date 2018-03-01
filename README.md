@@ -1,8 +1,8 @@
 # PopQuiz
 
-**Unit test in C++: Simple, Header-Only, Cross-Platform.**
-
 ![Linux](https://travis-ci.org/garrettsickles/PopQuiz.svg?branch=master "Linux")
+
+**Unit test in C++: Simple, Header-Only, Cross-Platform.**
 
 ## Overview
 I considered the following when I wrote this library:
