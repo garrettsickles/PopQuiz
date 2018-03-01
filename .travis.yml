@@ -8,4 +8,4 @@ compiler:
 script:
   - cd example
   - make clean
-  - make test
+  - make example
