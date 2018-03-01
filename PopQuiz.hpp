@@ -1,3 +1,5 @@
+#define _POPQUIZ_VERSION "1.0.1"
+
 #include <cstdio>
 #include <cstdint>
 #include <chrono>
@@ -71,6 +73,12 @@ template <bool use = true>
 void AddTest(const std::string suite, const std::string name, const Test& test, const std::int64_t duration = -1)
     { _pq_test_suite[suite].push_back(Case(name,test,use,duration)); }
 
+template <typename T>
+bool TypesafeEqual(T a, T b) { return a == b; }
+
+template <>
+bool TypesafeEqual<const char*>(const char* a, const char* b) { return std::string(a) == std::string(b); }
+
 #define AssertTrue(arg,message) do {\
         std::string _pq_msg_tmp(message);\
         if (static_cast<bool>(arg) == false) {\
@@ -93,7 +101,7 @@ void AddTest(const std::string suite, const std::string name, const Test& test, 
 
 #define AssertEqual(expected,actual,message) do {\
         std::string _pq_msg_tmp(message);\
-        if (expected != actual) {\
+        if (!TypesafeEqual(expected, actual)) {\
             _POPQUIZ_P_RD("        - %s (%s:%d - AssertEqual)\n", _pq_msg_tmp.c_str(), __FILE__, __LINE__);\
             throw Failure(message,__FILE__,__LINE__);\
         } else {\

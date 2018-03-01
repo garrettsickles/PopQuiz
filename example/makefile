@@ -7,27 +7,25 @@ CC_INC = -I..
 
 # File Extensions
 EXT_CPP  = cpp
-EXT_TEST = unit_test
 
 # Directories
-DIR_TEST    = .
-DIR_INCLUDE = .
+DIR_EXAMPLE = .
 DIR_BIN     = bin
 
 # Targets
-TGT_TEST := $(wildcard $(DIR_TEST)/*.$(EXT_TEST).$(EXT_CPP))
+TGT_EXAMPLE := $(wildcard $(DIR_EXAMPLE)/*.$(EXT_CPP))
 
 # Binaries
-BIN_TEST := $(TGT_TEST:$(DIR_TEST)/%.$(EXT_CPP)=$(DIR_BIN)/%)
+BIN_EXAMPLE := $(TGT_EXAMPLE:$(DIR_EXAMPLE)/%.$(EXT_CPP)=$(DIR_BIN)/%)
 
-# Run tests
-test: $(BIN_TEST)
+# Run examples
+example: $(BIN_EXAMPLE)
 
 clean:
-	@rm -rf $(DIR_BIN)/*.unit_test
+	@rm -rf $(DIR_BIN)
 
-# Build each test
-$(BIN_TEST) : $(DIR_BIN)/% : $(DIR_TEST)/%.$(EXT_CPP)
+# Build each example and run it
+$(BIN_EXAMPLE) : $(DIR_BIN)/% : $(DIR_EXAMPLE)/%.$(EXT_CPP)
 	@mkdir -p $(DIR_BIN)
-	@$(CC_BIN) $(CC_STD) $(CC_DEF) -DPOPQUIZ_JSON_OUTPUT="$<" $(CC_WRN) $(CC_INC) $< -g -o $@
+	@$(CC_BIN) $(CC_STD) $(CC_DEF) -DPOPQUIZ_JSON_OUTPUT="$(DIR_BIN)/$<" $(CC_WRN) $(CC_INC) $< -g -o $@
 	@./$@

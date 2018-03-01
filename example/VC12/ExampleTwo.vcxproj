@@ -2,7 +2,7 @@
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B881B1F8-081C-4711-908F-5F630D0F4E80}</ProjectGuid>
-    <TargetUnitTestName>ExampleTwo.unit_test</TargetUnitTestName>
+    <TargetName>ExampleTwo</TargetName>
     <RootNamespace>PopQuiz</RootNamespace>
   </PropertyGroup>
   <ImportGroup Label="PropertySheets">
@@ -10,10 +10,7 @@
     <Import Project="config.props" />
   </ImportGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\PopQuiz.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\$(TargetUnitTestName).cpp" />
+    <ClCompile Include="..\$(TargetName).cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
