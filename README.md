@@ -1,5 +1,4 @@
-# PopQuiz
-![Linux](https://travis-ci.org/garrettsickles/PopQuiz.svg?branch=master "Linux")
+# PopQuiz | ![Linux](https://travis-ci.org/garrettsickles/PopQuiz.svg?branch=master "Linux")
 
 Unit test in C++: Simple, Header-Only, Cross-Platform.
 
