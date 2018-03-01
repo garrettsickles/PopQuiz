@@ -22,7 +22,6 @@ That means **PopQuiz**:
 **JSON Output**
 ```json
 {
-{
     "Example #1":[
         {
             "name":"Do Nothing",
@@ -111,7 +110,7 @@ void PopQuiz::Setup() {
         AssertThrow<std::runtime_error>([](){
             throw std::runtime_error("This is a runtime error.");
         });
-    //     Passing '5' tell PopQuiz that this test should not exceed
+    //     Passing '5' tells PopQuiz that this test should not exceed
     //     5 millisecond. If the test execution does exceed 5 ms
     //     then the test will be considered a failure.
     },     5);
